@@ -1,8 +1,8 @@
 class Agent:
 
     def __init__(self, agent_attributes):
-        self.agreeableness = agent_attributes["agreeableness"]
-        print(agent_attributes.items())
+        for attr_name, attr_value in agent_attributes.items():
+            setattr(self, attr_name, attr_value)
 
 agent_attributes = {"neuroticism": -0.0739192627121713, "language": "Shona",
 "latitude": -19.922097800281783, "country_tld": "zw", "age": 12, "income": 333,
@@ -14,3 +14,5 @@ agent_attributes = {"neuroticism": -0.0739192627121713, "language": "Shona",
 
 
 agent1 = Agent(agent_attributes)
+print(agent1.neuroticism)
+print(agent1.country_name)
