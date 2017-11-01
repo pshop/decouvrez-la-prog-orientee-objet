@@ -120,8 +120,12 @@ def main():
         #i create an instance of agent dans give 2 args
         #the instance 'position' and the dict of 'agent_attributes'
         agent = Agent(position, **agent_attributes)
+        #for evry agent i find the zone where he comes from
+        #i instanciate this zone
         zone = Zone.find_zone_that_contains(position)
+        #and i add the agent to the zone
         zone.add_inhabitant(agent)
+        #i print the number of inhabitants of the zone
         print("Zone population:", zone.population)
 
 
