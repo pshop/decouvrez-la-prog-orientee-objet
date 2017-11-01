@@ -60,7 +60,7 @@ class Zone:
 
     #this is a class method it can be run without having to instanciate
     @classmethod
-    def initialize_zones(cls):
+    def _initialize_zones(cls):
         #for every degree in the latitude from -90 to 90
         for latitude in range(cls.MIN_LATITUDE_DEGREES, cls.MAX_LATITUDE_DEGREES, cls.HEIGHT_DEGREES):
             #for every degree in the longitude from -180 to 180
@@ -85,6 +85,9 @@ class Zone:
 
     @classmethod
     def find_zone_that_contains(cls, position):
+        if not cls.ZONES:
+            #if the zones don't exist, i initialize the zones
+            cls._initialize_zones()
         longitude_index = int((position.longitude_degrees - cls.MIN_LONGITUDE_DEGREES) / cls.WIDTH_DEGREES)
         latitude_index = int((position.latitude_degrees - cls.MIN_LATITUDE_DEGREES) / cls.HEIGHT_DEGREES)
         longitude_bins = int((cls.MAX_LONGITUDE_DEGREES - cls.MIN_LONGITUDE_DEGREES) / cls.WIDTH_DEGREES)
@@ -107,7 +110,6 @@ class Zone:
 
 #beginning of the program
 def main():
-    Zone.initialize_zones()
     #i open the json file that contains 100k agents
     for agent_attributes in json.load(open("agents-100k.json")):
         # take the latitude from the attribute list and store it in a var
