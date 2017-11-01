@@ -9,7 +9,7 @@ import math
 class Agent:
     #it's initialised with a position and a dictionary of attributes
     def __init__(self, position, **agent_attributes):
-        #set the pposition attribute
+        #set the position attribute
         self.position = position
         #creates an attribute for every entry of the dictionary
         for attr_name, attr_value in agent_attributes.items():
@@ -56,7 +56,7 @@ class Zone:
         #one coordonate for its top right corner
         self.corner2 = corner2
         #a number of inhabitants
-        self.inhabitants = 0
+        self.inhabitants = []
 
     #this is a class method it can be run without having to instanciate
     @classmethod
@@ -77,10 +77,37 @@ class Zone:
         #i see 64800 that means 360 * 180, seems OK !
         print(len(cls.ZONES))
 
+    def contains(self, position):
+        return position.longitude >= min(self.corner1.longitude, self.corner2.longitude) and \
+        position.longitude < max(self.corner1.longitude, self.corner2.longitude) and \
+        position.latitude >= min(self.corner1.latitude, self.corner2.latitude) and \
+        position.latitude < max(self.corner1.latitude, self.corner2.latitude)
+
+    @classmethod
+    def find_zone_that_contains(cls, position):
+        longitude_index = int((position.longitude_degrees - cls.MIN_LONGITUDE_DEGREES) / cls.WIDTH_DEGREES)
+        latitude_index = int((position.latitude_degrees - cls.MIN_LATITUDE_DEGREES) / cls.HEIGHT_DEGREES)
+        longitude_bins = int((cls.MAX_LONGITUDE_DEGREES - cls.MIN_LONGITUDE_DEGREES) / cls.WIDTH_DEGREES)
+        zone_index = latitude_index * longitude_bins + longitude_index
+
+        zone = cls.ZONES[zone_index]
+        assert zone.contains(position)
+
+        return zone
+
+    def add_inhabitant(self, inhabitant):
+        self.inhabitants.append(inhabitant)
+
+    @property
+    def population(self):
+        return len(self.inhabitants)
+
+
 ###############################################################################
 
 #beginning of the program
 def main():
+    Zone.initialize_zones()
     #i open the json file that contains 100k agents
     for agent_attributes in json.load(open("agents-100k.json")):
         # take the latitude from the attribute list and store it in a var
@@ -93,8 +120,9 @@ def main():
         #i create an instance of agent dans give 2 args
         #the instance 'position' and the dict of 'agent_attributes'
         agent = Agent(position, **agent_attributes)
-        #i print the latitude in RAD
-        #print(agent.position.latitude)
-    Zone.initialize_zones()
+        zone = Zone.find_zone_that_contains(position)
+        zone.add_inhabitant(agent)
+        print("Zone population:", zone.population)
+
 
 main()
