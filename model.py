@@ -48,6 +48,7 @@ class Zone:
     MAX_LATITUDE_DEGREES = 90
     WIDTH_DEGREES = 1 #degree step
     HEIGHT_DEGREES = 1#idem
+    EARTH_RADIUS_KILOMETER = 6371
 
     #initialize 1 zone (zones are squares in the area) and 1 zone has
     def __init__(self, corner1, corner2):
@@ -77,12 +78,15 @@ class Zone:
         #i see 64800 that means 360 * 180, seems OK !
         print(len(cls.ZONES))
 
+    #????????
     def contains(self, position):
         return position.longitude >= min(self.corner1.longitude, self.corner2.longitude) and \
         position.longitude < max(self.corner1.longitude, self.corner2.longitude) and \
         position.latitude >= min(self.corner1.latitude, self.corner2.latitude) and \
         position.latitude < max(self.corner1.latitude, self.corner2.latitude)
 
+    #finds zone the zone of an inhabitant
+    #how does it work ?
     @classmethod
     def find_zone_that_contains(cls, position):
         if not cls.ZONES:
@@ -98,13 +102,44 @@ class Zone:
 
         return zone
 
+    #add an inhabitant to his proper zone
     def add_inhabitant(self, inhabitant):
         self.inhabitants.append(inhabitant)
 
+    #counts the number of inhabitants of a zone
     @property
     def population(self):
         return len(self.inhabitants)
 
+    #return the width in km of a zone
+    @property
+    def width(self):
+        return abs(self.corner1.longitude - self.corner2.longitude) * self.EARTH_RADIUS_KILOMETER
+
+    #same with the height
+    @property
+    def height(self):
+        return abs(self.corner1.latitude - self.corner2.latitude) * self.
+
+    #returns the surface of the arear in squared kilometers
+    @property
+    def area(self):
+        return self.height * self.width
+
+    #returns the density of population of a zone
+    def population_density(self):
+        return self.population / self.area
+
+    #return the average_agreeableness of a zone
+    def average_agreeableness(self):
+        #if no inhabitants value is 0
+        if not self.inhabitants:
+            return 0
+        #comprehension list:
+        #it puts in a list with no name all the values of agreeableness
+        #of every inhabitants of the zone, makes the sum of it and divide it by
+        #the total population of the zone
+        return sum([inhabitants.agreeableness for inhabitant in self.inhabitants]) / self.population
 
 ###############################################################################
 
