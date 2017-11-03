@@ -1,8 +1,14 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+
 #to open and load the json file
 import json
 #to use the pi attribute
 import math
-
+#to make 2d coloured graphs
+import matplotlib as mil
+mil.use('TkAgg')
+import matplotlib.pyplot as plt
 ###############################################################################
 
 #I create a class Agent
@@ -119,7 +125,7 @@ class Zone:
     #same with the height
     @property
     def height(self):
-        return abs(self.corner1.latitude - self.corner2.latitude) * self.
+        return abs(self.corner1.latitude - self.corner2.latitude) * self.EARTH_RADIUS_KILOMETER
 
     #returns the surface of the arear in squared kilometers
     @property
@@ -139,7 +145,58 @@ class Zone:
         #it puts in a list with no name all the values of agreeableness
         #of every inhabitants of the zone, makes the sum of it and divide it by
         #the total population of the zone
-        return sum([inhabitants.agreeableness for inhabitant in self.inhabitants]) / self.population
+        return sum([inhabitant.agreeableness for inhabitant in self.inhabitants]) / self.population
+
+###############################################################################
+
+#abstract class
+class BaseGraph:
+
+    def __init__(self):
+        #we initiate all we need for a generic graph
+        self.title = "Graph Title"
+        self.x_label = "x-axis label"
+        self.y_label = "y-axis label"
+        self.show_grid = True
+
+    def show(self, zones):
+        #function of the module necesary to greate a graph
+        #get the x and y values
+        x_values , y_values = self.xy_values(zones)
+        #initiate the graph
+        plt.plot(x_values, y_values, '.')
+        #initiate x and y labels
+        plt.xlabel(self.x_label)
+        plt.ylabel(self.y_label)
+        #initiate labels title
+        plt.title(self.title)
+        #show the background grid
+        plt.grid(self.show_grid)
+        #show the graph
+        plt.show()
+
+    def xy_values(self, zones):
+        #if child class gives no values it creates an arror
+        raise NotImplementedError
+
+#BaseGraph's child class
+#specific for the AgreeablenessGraph
+class AgreeablenessGraph(BaseGraph):
+
+    def __init__(self):
+        #executes first the parents init methode
+        super().__init__()
+        #overrides the next three parameters
+        self.title = "Nice people live in the countryside"
+        self.x_label = "population density"
+        self.y_label = "agreeableness"
+
+    def xy_values(self, zones):
+        #gets the x and y values from the zones list given
+        #to the show function
+        x_values = [zone.population_density() for zone in zones]
+        y_values = [zone.average_agreeableness() for zone in zones]
+        return x_values, y_values
 
 ###############################################################################
 
@@ -162,8 +219,13 @@ def main():
         zone = Zone.find_zone_that_contains(position)
         #and i add the agent to the zone
         zone.add_inhabitant(agent)
-        #i print the number of inhabitants of the zone
-        print("Zone population:", zone.population)
+
+    #initiate Graphe
+    agreeableness_graph = AgreeablenessGraph()
+
+    #Show graph. we give to the class AgreeablenessGraph the list of zones
+    #so we have an access to every zone inside the class
+    agreeableness_graph.show(Zone.ZONES)
 
 
 main()
